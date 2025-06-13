@@ -14,6 +14,16 @@ const youtube = google.youtube({
   auth: process.env.GOOGLE_API_KEY,
 });
 
+const parseNumericStat = (stat: string | null | undefined): number => {
+  if (stat === null || typeof stat === 'undefined' || stat.trim() === '') {
+    return 0;
+  }
+  // Remove commas just in case, though YouTube API usually doesn't use them here.
+  const cleanedStat = stat.replace(/,/g, '');
+  const num = parseInt(cleanedStat, 10);
+  return isNaN(num) ? 0 : num; // Default to 0 if parsing results in NaN
+};
+
 async function fetchAllVideosFromYouTube(): Promise<Video[]> {
   if (allVideosCache && cacheTimestamp && (Date.now() - cacheTimestamp < CACHE_DURATION)) {
     console.log("Returning videos from cache.");
@@ -81,12 +91,12 @@ async function fetchAllVideosFromYouTube(): Promise<Video[]> {
       id: video.id,
       title: video.snippet.title || 'Untitled Video',
       thumbnailUrl,
-      likeCount: parseInt(video.statistics.likeCount || "0", 10),
-      viewCount: parseInt(video.statistics.viewCount || "0", 10),
+      likeCount: parseNumericStat(video.statistics.likeCount),
+      viewCount: parseNumericStat(video.statistics.viewCount),
       uploadDate: video.snippet.publishedAt || new Date().toISOString(),
       tags: video.snippet.tags || [],
       channelName: video.snippet.channelTitle || 'Unknown Channel',
-      duration: parseISO8601Duration(video.contentDetails.duration),
+      duration: parseISO8601Duration(video.contentDetails?.duration),
       description: getMainDescription(video.snippet.description),
     };
   }).filter((v): v is Video => v !== null);
@@ -119,7 +129,7 @@ export async function GET(request: NextRequest) {
     if (searchQuery) {
       filteredVideos = filteredVideos.filter(video => 
         video.title.toLowerCase().includes(searchQuery) ||
-        video.description.toLowerCase().includes(searchQuery)
+        (video.description && video.description.toLowerCase().includes(searchQuery))
       );
     }
 
@@ -151,9 +161,6 @@ export async function GET(request: NextRequest) {
       uniqueChannels: allUniqueChannels
     };
     
-    // Simulate network delay if needed, otherwise remove for production
-    // await new Promise(resolve => setTimeout(resolve, 500));
-
     return NextResponse.json(responseData);
   } catch (error) {
     console.error("Error fetching videos:", error);

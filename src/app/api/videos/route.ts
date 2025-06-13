@@ -18,10 +18,9 @@ const parseNumericStat = (stat: string | null | undefined): number => {
   if (stat === null || typeof stat === 'undefined' || stat.trim() === '') {
     return 0;
   }
-  // Remove commas just in case, though YouTube API usually doesn't use them here.
   const cleanedStat = stat.replace(/,/g, '');
   const num = parseInt(cleanedStat, 10);
-  return isNaN(num) ? 0 : num; // Default to 0 if parsing results in NaN
+  return isNaN(num) ? 0 : num;
 };
 
 async function fetchAllVideosFromYouTube(): Promise<Video[]> {
@@ -43,7 +42,9 @@ async function fetchAllVideosFromYouTube(): Promise<Video[]> {
 
   const playlistIds = playlistIdEnv.split(',').map(id => id.trim()).filter(id => id);
   if (playlistIds.length === 0) {
-    console.error("No valid playlist IDs found in PLAYLIST_IDS environment variable.");
+    console.warn("No valid playlist IDs found in PLAYLIST_IDS environment variable. Returning empty video list.");
+    allVideosCache = [];
+    cacheTimestamp = Date.now();
     return [];
   }
 
@@ -52,31 +53,37 @@ async function fetchAllVideosFromYouTube(): Promise<Video[]> {
   for (const playlistId of playlistIds) {
     let nextPageToken: string | undefined | null = undefined;
     do {
-      const playlistItemsResponse: youtube_v3.Schema$PlaylistItemListResponse = (await youtube.playlistItems.list({
-        part: ['snippet', 'contentDetails'],
-        playlistId: playlistId,
-        maxResults: 50,
-        pageToken: nextPageToken ?? undefined,
-      })).data;
-
-      const videoIds = playlistItemsResponse.items
-        ?.map(item => item.contentDetails?.videoId)
-        .filter((id): id is string => !!id) || [];
-
-      if (videoIds.length > 0) {
-        const videoDetailsResponse: youtube_v3.Schema$VideoListResponse = (await youtube.videos.list({
-          part: ['snippet', 'contentDetails', 'statistics', 'id'],
-          id: videoIds,
+      try {
+        const playlistItemsResponseData = (await youtube.playlistItems.list({
+          part: ['snippet', 'contentDetails'],
+          playlistId: playlistId,
           maxResults: 50,
+          pageToken: nextPageToken ?? undefined,
         })).data;
         
-        videoDetailsResponse.items?.forEach(video => {
-          if (video.id) {
-            videoDataMap.set(video.id, video);
-          }
-        });
+        const videoIds = playlistItemsResponseData.items
+          ?.map(item => item.contentDetails?.videoId)
+          .filter((id): id is string => !!id) || [];
+
+        if (videoIds.length > 0) {
+          const videoDetailsResponseData = (await youtube.videos.list({
+            part: ['snippet', 'contentDetails', 'statistics', 'id'],
+            id: videoIds,
+            maxResults: 50,
+          })).data;
+          
+          videoDetailsResponseData.items?.forEach(video => {
+            if (video.id) {
+              videoDataMap.set(video.id, video);
+            }
+          });
+        }
+        nextPageToken = playlistItemsResponseData.nextPageToken;
+      } catch (apiError) {
+        console.error(`Error fetching from YouTube API for playlist ${playlistId} (pageToken: ${nextPageToken}):`, apiError);
+        // Optionally, decide if one playlist error should stop all or just skip this playlist
+        nextPageToken = null; // Stop processing this playlist on error
       }
-      nextPageToken = playlistItemsResponse.nextPageToken;
     } while (nextPageToken);
   }
 
@@ -85,7 +92,6 @@ async function fetchAllVideosFromYouTube(): Promise<Video[]> {
     
     const thumbnails = video.snippet.thumbnails;
     let thumbnailUrl = thumbnails?.high?.url || thumbnails?.medium?.url || thumbnails?.default?.url || 'https://placehold.co/480x360.png';
-
 
     return {
       id: video.id,
@@ -101,6 +107,7 @@ async function fetchAllVideosFromYouTube(): Promise<Video[]> {
     };
   }).filter((v): v is Video => v !== null);
 
+  console.log(`Fetched ${fetchedVideos.length} unique videos from YouTube.`);
   allVideosCache = fetchedVideos;
   cacheTimestamp = Date.now();
   return fetchedVideos;
@@ -108,6 +115,12 @@ async function fetchAllVideosFromYouTube(): Promise<Video[]> {
 
 
 export async function GET(request: NextRequest) {
+  console.log(`/api/videos route hit. Request URL: ${request.url}`);
+  // These logs are more for local dev or specific debugging,
+  // as missing env vars are checked and thrown in fetchAllVideosFromYouTube
+  // if (!process.env.PLAYLIST_IDS) console.warn("PLAYLIST_IDS env var is missing in API route (checked in GET).");
+  // if (!process.env.GOOGLE_API_KEY) console.warn("GOOGLE_API_KEY env var is missing in API route (checked in GET).");
+
   try {
     const allVideos = await fetchAllVideosFromYouTube();
     const allUniqueChannels = Array.from(new Set(allVideos.map(video => video.channelName))).sort();
@@ -163,8 +176,9 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(responseData);
   } catch (error) {
-    console.error("Error fetching videos:", error);
+    console.error("Error in GET /api/videos:", error);
     const message = error instanceof Error ? error.message : "Error fetching videos";
-    return NextResponse.json({ message }, { status: 500 });
+    return NextResponse.json({ message, error: String(error) }, { status: 500 });
   }
 }
+

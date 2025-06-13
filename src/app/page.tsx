@@ -7,19 +7,35 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ThemeToggleButton from '@/components/theme-toggle-button';
 
 async function getInitialUniqueChannels(): Promise<string[]> {
+  // Determine base URL - prioritize Firebase's APP_URL, then NEXT_PUBLIC_APP_URL, then local
+  const baseUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
+  const apiUrl = `${baseUrl}/api/videos?limit=1&page=1`;
+  console.log(`Attempting to fetch initial channels from: ${apiUrl}`);
+
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002'}/api/videos?limit=1&page=1`);
+    const response = await fetch(apiUrl, { cache: 'no-store' }); // Disable cache for this specific request
+
     if (!response.ok) {
-      console.error("Failed to fetch initial channels from API, using fallback.");
-      return ["Channel A1", "Channel B1", "Channel C1"];
+      const errorBody = await response.text();
+      console.error(`Failed to fetch initial channels. Status: ${response.status}, URL: ${apiUrl}, Body: ${errorBody}. Using fallback channels (A).`);
+      return ["Channel Fallback A", "Channel Fallback B", "Channel Fallback C"];
     }
+
     const data: PaginatedVideos = await response.json();
-    return data.uniqueChannels && data.uniqueChannels.length > 0 ? data.uniqueChannels : ["Channel A1", "Channel B1", "Channel C1"];
+
+    if (data && data.uniqueChannels && data.uniqueChannels.length > 0) {
+      console.log("Successfully fetched unique channels:", data.uniqueChannels);
+      return data.uniqueChannels;
+    } else {
+      console.warn(`API returned success but uniqueChannels is empty or undefined. API URL: ${apiUrl}, Response data: ${JSON.stringify(data)}. Using fallback channels (B).`);
+      return ["Channel Fallback D", "Channel Fallback E", "Channel Fallback F"];
+    }
   } catch (error) {
-    console.error("Error fetching initial channels:", error);
-    return ["Channel A1", "Channel B1", "Channel C1"];
+    console.error(`Caught error in getInitialUniqueChannels fetching from ${apiUrl}:`, error);
+    return ["Channel Fallback G", "Channel Fallback H", "Channel Fallback I"];
   }
 }
+
 
 const FilterSortControlsSkeleton = () => (
   <div className="bg-card p-4 sm:p-6 rounded-lg shadow-md mb-6 sticky top-0 z-10 border-b">

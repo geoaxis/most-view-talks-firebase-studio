@@ -8,9 +8,9 @@ export interface Video {
   uploadDate: string; // ISO date string
   tags: string[];
   channelName: string;
-  channelAvatarUrl: string;
+  // channelAvatarUrl: string; // Removed as it's complex to fetch for each video
   duration: string; // e.g., "12:34"
-  description: string; // Added video description
+  description: string;
 }
 
 export type SortOption = "uploadDate" | "viewCount" | "likeCount";

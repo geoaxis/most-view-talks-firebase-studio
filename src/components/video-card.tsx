@@ -1,13 +1,15 @@
+
 "use client";
 
 import Image from 'next/image';
 import type { Video } from '@/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import StarRating from '@/components/star-rating';
-import { Eye, MessageCircle, CalendarDays, Tag, Clock } from 'lucide-react';
+// Removed Popover imports as comments are removed
+// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+// import { Button } from '@/components/ui/button';
+// import { ScrollArea } from '@/components/ui/scroll-area';
+// Removed StarRating import
+import { Eye, CalendarDays, Tag, ThumbsUp } from 'lucide-react'; // Added ThumbsUp, removed MessageCircle
 import { formatDistanceToNow } from 'date-fns';
 import { useState, useEffect } from 'react';
 
@@ -25,29 +27,26 @@ export default function VideoCard({ video }: VideoCardProps) {
   }, [video.uploadDate]);
 
   if (!isMounted) {
-    // Render nothing or a placeholder on the server to avoid hydration mismatch for dates
     return (
-        <Card className="w-80 bg-card rounded-lg shadow-lg overflow-hidden flex flex-col h-full animate-pulse">
+        <Card className="w-96 bg-card rounded-lg shadow-lg overflow-hidden flex flex-col h-full animate-pulse"> {/* Increased width */}
             <div className="aspect-video bg-muted"></div>
-            <CardHeader className="p-4">
-                <div className="h-6 bg-muted rounded w-3/4"></div>
+            <CardHeader className="p-3"> {/* Condensed padding */}
+                <div className="h-5 bg-muted rounded w-3/4"></div> {/* Adjusted height for condensed look */}
                 <div className="h-4 bg-muted rounded w-1/2 mt-1"></div>
             </CardHeader>
-            <CardContent className="p-4 space-y-2 flex-grow">
+            <CardContent className="p-3 space-y-2 flex-grow"> {/* Condensed padding */}
                 <div className="h-4 bg-muted rounded w-full"></div>
                 <div className="h-4 bg-muted rounded w-5/6"></div>
             </CardContent>
-            <CardFooter className="p-4 flex flex-wrap gap-2 border-t border-border">
-                <div className="h-6 bg-muted rounded w-1/4"></div>
-                <div className="h-6 bg-muted rounded w-1/4"></div>
-                <div className="h-6 bg-muted rounded w-1/4"></div>
+            <CardFooter className="p-3 border-t border-border"> {/* Condensed padding */}
+                 {/* Footer content removed as per no comments */}
             </CardFooter>
         </Card>
     );
   }
 
   return (
-    <Card className="w-80 bg-card rounded-lg shadow-lg overflow-hidden flex flex-col h-full group transition-all duration-300 ease-in-out hover:shadow-2xl">
+    <Card className="w-96 bg-card rounded-lg shadow-lg overflow-hidden flex flex-col h-full group transition-all duration-300 ease-in-out hover:shadow-2xl"> {/* Increased width */}
       <div className="relative aspect-video w-full overflow-hidden">
         <Image
           src={video.thumbnailUrl}
@@ -56,75 +55,52 @@ export default function VideoCard({ video }: VideoCardProps) {
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           data-ai-hint="video thumbnail"
-          priority={false} // Set to true for above-the-fold images if applicable
+          priority={false} 
         />
-        <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+        <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded"> {/* Adjusted position slightly */}
           {video.duration}
         </div>
       </div>
 
-      <CardHeader className="p-4">
-        <CardTitle className="text-lg font-semibold leading-tight line-clamp-2 font-headline" title={video.title}>
+      <CardHeader className="p-3"> {/* Condensed padding */}
+        <CardTitle className="text-base font-semibold leading-snug line-clamp-2 font-headline" title={video.title}> {/* Adjusted font size/leading */}
           {video.title}
         </CardTitle>
         <div className="flex items-center text-xs text-muted-foreground mt-1">
-          <Image src={video.channelAvatarUrl} alt={`${video.channelName} avatar`} width={20} height={20} className="rounded-full mr-2" data-ai-hint="channel avatar" />
+          <Image src={video.channelAvatarUrl} alt={`${video.channelName} avatar`} width={16} height={16} className="rounded-full mr-1.5" data-ai-hint="channel avatar" /> {/* Slightly smaller avatar */}
           <span>{video.channelName}</span>
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 space-y-3 flex-grow">
-        <div className="flex items-center text-sm text-muted-foreground" aria-label={`Rating: ${video.starRating} out of 5 stars`}>
-          <StarRating rating={video.starRating} />
-          <span className="ml-2">({video.starRating.toFixed(1)})</span>
+      <CardContent className="p-3 space-y-1.5 flex-grow"> {/* Condensed padding and space */}
+        <div className="flex items-center text-xs text-muted-foreground"> {/* Adjusted text size */}
+          <ThumbsUp className="h-3.5 w-3.5 mr-1.5 shrink-0 text-sky-500" /> {/* Using ThumbsUp */}
+          <span>{video.likeCount.toLocaleString()} likes</span>
         </div>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Eye className="h-4 w-4 mr-2 shrink-0" />
+        <div className="flex items-center text-xs text-muted-foreground">
+          <Eye className="h-3.5 w-3.5 mr-1.5 shrink-0" />
           <span>{video.viewCount.toLocaleString()} views</span>
         </div>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <CalendarDays className="h-4 w-4 mr-2 shrink-0" />
+        <div className="flex items-center text-xs text-muted-foreground">
+          <CalendarDays className="h-3.5 w-3.5 mr-1.5 shrink-0" />
           <span>{formattedDate}</span>
         </div>
         {video.tags.length > 0 && (
-          <div className="flex items-start text-sm text-muted-foreground">
-            <Tag className="h-4 w-4 mr-2 mt-0.5 shrink-0" />
+          <div className="flex items-start text-xs text-muted-foreground">
+            <Tag className="h-3.5 w-3.5 mr-1.5 mt-0.5 shrink-0" />
             <div className="flex flex-wrap gap-1">
-              {video.tags.slice(0, 3).map(tag => (
+              {video.tags.slice(0, 2).map(tag => ( // Show fewer tags for condensed view
                 <span key={tag} className="text-xs bg-secondary px-1.5 py-0.5 rounded-full">{tag}</span>
               ))}
-              {video.tags.length > 3 && <span className="text-xs bg-secondary px-1.5 py-0.5 rounded-full">+{video.tags.length - 3} more</span>}
+              {video.tags.length > 2 && <span className="text-xs bg-secondary px-1.5 py-0.5 rounded-full">+{video.tags.length - 2}</span>}
             </div>
           </div>
         )}
       </CardContent>
 
-      <CardFooter className="p-4 border-t border-border">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="w-full group-hover:bg-accent group-hover:text-accent-foreground transition-colors">
-              <MessageCircle className="h-4 w-4 mr-2" /> View Comments ({video.comments.length})
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 max-h-96 p-0" side="top" align="center">
-            <ScrollArea className="h-[300px] p-4">
-              {video.comments.length > 0 ? (
-                <div className="space-y-3">
-                  <h4 className="font-medium text-center mb-2">Comments</h4>
-                  {video.comments.map(comment => (
-                    <div key={comment.id} className="text-sm p-2 bg-muted/50 rounded-md">
-                      <p className="font-semibold text-xs">{comment.author}</p>
-                      <p className="text-muted-foreground text-xs mb-1">{formatDistanceToNow(new Date(comment.timestamp), { addSuffix: true })}</p>
-                      <p>{comment.text}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">No comments yet.</p>
-              )}
-            </ScrollArea>
-          </PopoverContent>
-        </Popover>
+      <CardFooter className="p-3 border-t border-border">
+        {/* Footer content removed as comments are gone. Could add other actions here in the future. */}
+        <div className="w-full h-6"><!-- Placeholder for potential future actions --></div>
       </CardFooter>
     </Card>
   );

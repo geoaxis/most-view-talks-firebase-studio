@@ -1,29 +1,26 @@
-export interface VideoComment {
-  id: string;
-  text: string;
-  author: string;
-  timestamp: string; // ISO date string
-}
 
 export interface Video {
   id: string;
   title: string;
   thumbnailUrl: string;
-  starRating: number; // 1-5
-  comments: VideoComment[];
+  likeCount: number; // Changed from starRating
+  // comments: VideoComment[]; // Removed comments
   viewCount: number;
   uploadDate: string; // ISO date string
-  tags: string[];
+  tags: string[]; // Kept for display purposes
   channelName: string;
   channelAvatarUrl: string;
   duration: string; // e.g., "12:34"
 }
 
-export type SortOption = "uploadDate" | "viewCount" | "starRating";
+// Removed VideoComment interface as it's no longer used
+
+export type SortOption = "uploadDate" | "viewCount" | "likeCount"; // Changed starRating to likeCount
 export type SortOrder = "asc" | "desc";
 
 export interface FetchVideosParams {
-  topic?: string;
+  channel?: string; // Changed from topic
+  searchQuery?: string; // Added for free text search
   sortBy?: SortOption;
   sortOrder?: SortOrder;
   page?: number;
@@ -35,5 +32,5 @@ export interface PaginatedVideos {
   totalPages: number;
   currentPage: number;
   totalVideos: number;
-  uniqueTags: string[];
+  uniqueChannels: string[]; // Changed from uniqueTags
 }

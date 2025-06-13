@@ -11,39 +11,84 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input'; // Added Input
 import type { SortOption } from '@/types';
-import { Filter, ListFilter, RotateCcw } from 'lucide-react';
-import React from 'react';
+import { Filter, ListFilter, RotateCcw, Search as SearchIcon } from 'lucide-react'; // Added SearchIcon
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface FilterSortControlsProps {
-  uniqueTags: string[];
+  uniqueChannels: string[]; // Changed from uniqueTags
 }
 
-const ALL_TOPICS_VALUE = "_all_"; // Define a constant for the special value
+const ALL_CHANNELS_VALUE = "_all_channels_"; // Renamed constant
 
 const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'uploadDate', label: 'Upload Date' },
   { value: 'viewCount', label: 'View Count' },
-  { value: 'starRating', label: 'Star Rating' },
+  { value: 'likeCount', label: 'Likes' }, // Changed from Star Rating
 ];
 
-export default function FilterSortControls({ uniqueTags }: FilterSortControlsProps) {
+// Debounce function
+function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  const debounced = (...args: Parameters<F>) => {
+    if (timeout !== null) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+    timeout = setTimeout(() => func(...args), waitFor);
+  };
+
+  return debounced as (...args: Parameters<F>) => ReturnType<F>;
+}
+
+
+export default function FilterSortControls({ uniqueChannels }: FilterSortControlsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const currentTopic = searchParams.get('topic') || ''; // This will be empty string if no topic is set
+  const currentChannel = searchParams.get('channel') || '';
   const currentSortBy = (searchParams.get('sortBy') as SortOption) || 'uploadDate';
   const currentSortOrder = searchParams.get('sortOrder') || 'desc';
+  const currentSearchQuery = searchParams.get('searchQuery') || '';
 
-  const handleTopicChange = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value && value !== ALL_TOPICS_VALUE) {
-      params.set('topic', value);
-    } else {
-      params.delete('topic');
-    }
-    params.set('page', '1'); // Reset to first page on filter change
+  const [searchInput, setSearchInput] = useState(currentSearchQuery);
+
+  // Update searchInput when URL query changes (e.g. back button)
+  useEffect(() => {
+    setSearchInput(searchParams.get('searchQuery') || '');
+  }, [searchParams]);
+  
+  const pushRouterState = useCallback((params: URLSearchParams) => {
     router.push(`?${params.toString()}`, { scroll: false });
+  }, [router]);
+
+  const debouncedPushRouterState = useCallback(debounce(pushRouterState, 500), [pushRouterState]);
+
+
+  const handleChannelChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value !== ALL_CHANNELS_VALUE) {
+      params.set('channel', value);
+    } else {
+      params.delete('channel');
+    }
+    params.set('page', '1');
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newSearchQuery = event.target.value;
+    setSearchInput(newSearchQuery);
+    const params = new URLSearchParams(searchParams.toString());
+    if (newSearchQuery) {
+      params.set('searchQuery', newSearchQuery);
+    } else {
+      params.delete('searchQuery');
+    }
+    params.set('page', '1');
+    debouncedPushRouterState(params);
   };
 
   const handleSortByChange = (value: SortOption) => {
@@ -61,46 +106,46 @@ export default function FilterSortControls({ uniqueTags }: FilterSortControlsPro
   };
   
   const handleResetFilters = () => {
-    router.push('?', { scroll: false });
+    setSearchInput(''); // Clear local search input state
+    router.push('?', { scroll: false }); // Clears all query params
   };
 
-  // Determine the value for the Select component. If currentTopic is empty, 
-  // it means "All Topics" should be selected conceptually, which corresponds to ALL_TOPICS_VALUE for the SelectItem.
-  // However, the Select component's value should be an empty string to show the placeholder correctly if no topic is in the URL.
-  // If a topic is selected, currentTopic will be that topic's value.
-  // If "All Topics" is explicitly selected by the user, handleTopicChange will clear the URL param,
-  // making currentTopic '', and the Select value for rendering will be ALL_TOPICS_VALUE to select the item.
-  // The Select's `value` prop should reflect what's in the URL. If `currentTopic` is `''`, it means no specific topic is filtered.
-  // The "All Topics" `SelectItem` has the value `ALL_TOPICS_VALUE`.
-  // So, if `currentTopic` is `''`, we want the Select to show "All Topics" as selected.
-  const selectTopicValue = currentTopic === '' ? ALL_TOPICS_VALUE : currentTopic;
-
+  const selectChannelValue = currentChannel === '' ? ALL_CHANNELS_VALUE : currentChannel;
 
   return (
     <div className="bg-card p-4 sm:p-6 rounded-lg shadow-md mb-6 sticky top-0 z-10 border-b">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end"> {/* Changed to 4 columns for lg */}
         <div>
-          <Label htmlFor="topic-filter" className="text-sm font-medium text-foreground flex items-center mb-1">
-            <Filter className="h-4 w-4 mr-2" /> Topic
+          <Label htmlFor="channel-filter" className="text-sm font-medium text-foreground flex items-center mb-1">
+            <Filter className="h-4 w-4 mr-2" /> Channel
           </Label>
-          <Select value={selectTopicValue} onValueChange={handleTopicChange}>
-            <SelectTrigger id="topic-filter" className="w-full bg-background">
-              {/* SelectValue will display the selected item's children. Placeholder is used if Select's value doesn't match any item.
-                  If currentTopic is '', selectTopicValue is ALL_TOPICS_VALUE.
-                  The item with value ALL_TOPICS_VALUE is "All Topics". So this will be displayed.
-                  If currentTopic is 'Gaming', selectTopicValue is 'Gaming'. "Gaming" will be displayed.
-              */}
-              <SelectValue placeholder="All Topics" />
+          <Select value={selectChannelValue} onValueChange={handleChannelChange}>
+            <SelectTrigger id="channel-filter" className="w-full bg-background">
+              <SelectValue placeholder="All Channels" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ALL_TOPICS_VALUE}>All Topics</SelectItem>
-              {uniqueTags.map(tag => (
-                <SelectItem key={tag} value={tag}>
-                  {tag}
+              <SelectItem value={ALL_CHANNELS_VALUE}>All Channels</SelectItem>
+              {uniqueChannels.map(channelName => (
+                <SelectItem key={channelName} value={channelName}>
+                  {channelName}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="search-filter" className="text-sm font-medium text-foreground flex items-center mb-1">
+            <SearchIcon className="h-4 w-4 mr-2" /> Search Title
+          </Label>
+          <Input
+            id="search-filter"
+            type="text"
+            placeholder="Enter keywords..."
+            value={searchInput}
+            onChange={handleSearchChange}
+            className="w-full bg-background"
+          />
         </div>
 
         <div>
@@ -126,9 +171,9 @@ export default function FilterSortControls({ uniqueTags }: FilterSortControlsPro
           </div>
         </div>
         
-        <div className="sm:col-start-2 lg:col-start-3">
+        <div> {/* Reset button in its own column */}
             <Button onClick={handleResetFilters} variant="outline" className="w-full bg-background">
-                <RotateCcw className="h-4 w-4 mr-2" /> Reset Filters
+                <RotateCcw className="h-4 w-4 mr-2" /> Reset All
             </Button>
         </div>
       </div>

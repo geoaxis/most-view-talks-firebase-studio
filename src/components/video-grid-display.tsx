@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
@@ -11,23 +12,22 @@ import { Loader2, SearchX } from 'lucide-react';
 const VIDEOS_PER_PAGE = 12;
 
 const VideoCardSkeleton = () => (
-  <div className="w-80 bg-card rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
+  <div className="w-96 bg-card rounded-lg shadow-lg overflow-hidden flex flex-col h-full"> {/* Adjusted width */}
     <Skeleton className="aspect-video w-full" />
-    <div className="p-4">
-      <Skeleton className="h-6 w-3/4 mb-2" />
-      <Skeleton className="h-4 w-1/2 mb-4" />
+    <div className="p-3"> {/* Adjusted padding */}
+      <Skeleton className="h-5 w-3/4 mb-2" />
+      <Skeleton className="h-4 w-1/2 mb-3" />
       <Skeleton className="h-4 w-full mb-1" />
       <Skeleton className="h-4 w-5/6 mb-1" />
-      <Skeleton className="h-4 w-full mb-1" />
     </div>
-    <div className="p-4 border-t mt-auto">
-      <Skeleton className="h-10 w-full" />
+    <div className="p-3 border-t mt-auto"> {/* Adjusted padding */}
+      <Skeleton className="h-6 w-full" /> {/* Placeholder for footer actions if any */}
     </div>
   </div>
 );
 
 
-export default function VideoGridDisplay({ initialUniqueTags }: { initialUniqueTags: string[] }) {
+export default function VideoGridDisplay({ initialUniqueChannels }: { initialUniqueChannels: string[] }) { // Prop renamed
   const [videos, setVideos] = useState<Video[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -44,7 +44,8 @@ export default function VideoGridDisplay({ initialUniqueTags }: { initialUniqueT
     setError(null);
 
     const query = new URLSearchParams();
-    if (params.topic) query.set('topic', params.topic);
+    if (params.channel) query.set('channel', params.channel); // Changed from topic
+    if (params.searchQuery) query.set('searchQuery', params.searchQuery); // Added searchQuery
     if (params.sortBy) query.set('sortBy', params.sortBy);
     if (params.sortOrder) query.set('sortOrder', params.sortOrder);
     query.set('page', currentPage.toString());
@@ -73,9 +74,10 @@ export default function VideoGridDisplay({ initialUniqueTags }: { initialUniqueT
   }, [toast]);
 
   useEffect(() => {
-    setPage(1); // Reset page to 1 when searchParams change
+    setPage(1); 
     const params: FetchVideosParams = {
-      topic: searchParams.get('topic') || undefined,
+      channel: searchParams.get('channel') || undefined, // Changed from topic
+      searchQuery: searchParams.get('searchQuery') || undefined, // Added searchQuery
       sortBy: (searchParams.get('sortBy') as FetchVideosParams['sortBy']) || undefined,
       sortOrder: (searchParams.get('sortOrder') as FetchVideosParams['sortOrder']) || undefined,
     };
@@ -93,14 +95,14 @@ export default function VideoGridDisplay({ initialUniqueTags }: { initialUniqueT
       },
       { threshold: 1.0 }
     );
-    observer.current = currentObserver; // Assign to observer.current
+    observer.current = currentObserver; 
 
     if (loadMoreRef.current) {
       currentObserver.observe(loadMoreRef.current);
     }
 
     return () => {
-      if (loadMoreRef.current && currentObserver) { // Use currentObserver here
+      if (loadMoreRef.current && currentObserver) { 
         currentObserver.unobserve(loadMoreRef.current);
       }
     };
@@ -110,7 +112,8 @@ export default function VideoGridDisplay({ initialUniqueTags }: { initialUniqueT
   useEffect(() => {
     if (page > 1 && page <= totalPages) {
       const params: FetchVideosParams = {
-        topic: searchParams.get('topic') || undefined,
+        channel: searchParams.get('channel') || undefined, // Changed from topic
+        searchQuery: searchParams.get('searchQuery') || undefined, // Added searchQuery
         sortBy: (searchParams.get('sortBy') as FetchVideosParams['sortBy']) || undefined,
         sortOrder: (searchParams.get('sortOrder') as FetchVideosParams['sortOrder']) || undefined,
       };
@@ -121,7 +124,7 @@ export default function VideoGridDisplay({ initialUniqueTags }: { initialUniqueT
 
   if (isLoading && videos.length === 0) {
     return (
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(384px,1fr))] gap-4 p-4"> {/* Adjusted minmax */}
         {Array.from({ length: VIDEOS_PER_PAGE }).map((_, index) => (
           <VideoCardSkeleton key={index} />
         ))}
@@ -151,7 +154,7 @@ export default function VideoGridDisplay({ initialUniqueTags }: { initialUniqueT
 
   return (
     <div className="flex-1">
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-4">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(384px,1fr))] gap-4 p-4"> {/* Adjusted minmax */}
         {videos.map(video => (
           <VideoCard key={video.id} video={video} />
         ))}

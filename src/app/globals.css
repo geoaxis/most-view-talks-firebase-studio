@@ -5,83 +5,83 @@
 
 @layer base {
   :root {
-    /* Neutral Light Theme - Revised */
+    /* Strict Monochromatic Light Theme */
     --background: 0 0% 98%; /* Very light gray, almost white */
-    --foreground: 0 0% 13%; /* Dark gray for text */
+    --foreground: 0 0% 10%; /* Very dark gray for text */
     --card: 0 0% 100%; /* White */
-    --card-foreground: 0 0% 13%;
+    --card-foreground: 0 0% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 13%;
-    --primary: 210 9% 45%; /* Desaturated cool gray */
+    --popover-foreground: 0 0% 10%;
+    --primary: 0 0% 40%; /* Mid-gray for primary actions */
     --primary-foreground: 0 0% 100%; /* White for contrast on primary */
-    --secondary: 0 0% 94%; /* Slightly darker light gray */
-    --secondary-foreground: 0 0% 20%; /* Darker gray for text on secondary */
+    --secondary: 0 0% 94%; /* Light gray for secondary elements */
+    --secondary-foreground: 0 0% 15%; /* Darker gray for text on secondary */
     --muted: 0 0% 90%; /* Lighter gray for muted elements */
     --muted-foreground: 0 0% 45%; /* Mid-gray for muted text */
-    --accent: 210 8% 60%; /* Lighter desaturated cool gray for accents */
-    --accent-foreground: 0 0% 13%; /* Dark gray for text on accent */
-    --destructive: 0 70% 50%; /* Standard red */
+    --accent: 0 0% 85%; /* Subtle light gray for accents */
+    --accent-foreground: 0 0% 10%; /* Dark gray for text on accent */
+    --destructive: 0 70% 50%; /* Standard red (remains for errors) */
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 87%; /* Light gray border */
     --input: 0 0% 96%; /* Slightly off-white input background */
-    --ring: 210 9% 55%; /* Ring color based on primary */
+    --ring: 0 0% 55%; /* Gray ring color */
     
-    --chart-1: 0 0% 75%;
-    --chart-2: 0 0% 65%;
-    --chart-3: 0 0% 55%;
-    --chart-4: 0 0% 45%;
-    --chart-5: 0 0% 35%;
+    --chart-1: 0 0% 70%;
+    --chart-2: 0 0% 60%;
+    --chart-3: 0 0% 50%;
+    --chart-4: 0 0% 40%;
+    --chart-5: 0 0% 30%;
     
     --radius: 0.5rem;
 
-    /* Sidebar specific variables - Neutral Light */
+    /* Sidebar specific variables - Monochromatic Light */
     --sidebar-background: 0 0% 96%; 
-    --sidebar-foreground: 0 0% 20%;
-    --sidebar-primary: 210 9% 45%; 
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 0 0% 40%; 
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 90%; 
-    --sidebar-accent-foreground: 0 0% 13%;
+    --sidebar-accent-foreground: 0 0% 10%;
     --sidebar-border: 0 0% 85%;
-    --sidebar-ring: 210 9% 55%;
+    --sidebar-ring: 0 0% 55%;
   }
 
   .dark {
-    /* Neutral Dark Theme - Revised */
+    /* Strict Monochromatic Dark Theme */
     --background: 0 0% 10%; /* Very dark gray */
     --foreground: 0 0% 95%; /* Light gray / Off-white text */
     --card: 0 0% 14%; /* Slightly lighter dark gray for cards */
     --card-foreground: 0 0% 95%;
     --popover: 0 0% 14%;
     --popover-foreground: 0 0% 95%;
-    --primary: 210 9% 65%; /* Light, desaturated cool gray */
+    --primary: 0 0% 70%; /* Light gray for primary actions in dark mode */
     --primary-foreground: 0 0% 10%; /* Dark text for contrast on primary */
     --secondary: 0 0% 18%; /* Darker gray for secondary elements */
     --secondary-foreground: 0 0% 85%; /* Lighter gray text on secondary */
     --muted: 0 0% 22%; /* Darker gray for muted elements */
     --muted-foreground: 0 0% 65%; /* Mid-light gray for muted text */
-    --accent: 210 8% 50%; /* Mid-dark desaturated cool gray for accents */
+    --accent: 0 0% 30%; /* Mid-dark gray for accents */
     --accent-foreground: 0 0% 95%; /* Light gray text on accent */
-    --destructive: 0 60% 50%; /* Standard red, adjusted for dark */
+    --destructive: 0 60% 50%; /* Standard red, adjusted for dark (remains for errors) */
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 25%; /* Dark gray border */
     --input: 0 0% 16%; /* Slightly off-black input background */
-    --ring: 210 9% 55%; /* Ring color based on primary */
+    --ring: 0 0% 55%; /* Gray ring color */
 
-    --chart-1: 0 0% 35%;
-    --chart-2: 0 0% 45%;
-    --chart-3: 0 0% 55%;
-    --chart-4: 0 0% 65%;
-    --chart-5: 0 0% 75%;
+    --chart-1: 0 0% 30%;
+    --chart-2: 0 0% 40%;
+    --chart-3: 0 0% 50%;
+    --chart-4: 0 0% 60%;
+    --chart-5: 0 0% 70%;
 
-    /* Sidebar specific variables - Neutral Dark */
+    /* Sidebar specific variables - Monochromatic Dark */
     --sidebar-background: 0 0% 12%; 
     --sidebar-foreground: 0 0% 85%;
-    --sidebar-primary: 210 9% 65%;
+    --sidebar-primary: 0 0% 70%;
     --sidebar-primary-foreground: 0 0% 10%;
     --sidebar-accent: 0 0% 20%; 
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 28%;
-    --sidebar-ring: 210 9% 55%;
+    --sidebar-ring: 0 0% 55%;
   }
 }
 

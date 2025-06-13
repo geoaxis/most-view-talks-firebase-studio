@@ -14,17 +14,36 @@ const allVideos: Video[] = Array.from({ length: 100 }, (_, i) => {
   const minutes = Math.floor(Math.random() * 30) + 1;
   const seconds = Math.floor(Math.random() * 60);
 
+  const descriptions = [
+    "A deep dive into the latest strategies for winning your favorite game. Includes pro tips and tricks!",
+    "Learn how to cook a delicious three-course meal in under an hour with this easy-to-follow tutorial.",
+    "Exploring the beautiful landscapes of the Swiss Alps. A breathtaking journey you won't want to miss.",
+    "Unboxing the newest smartphone on the market. Is it worth the hype? Let's find out.",
+    "An educational video explaining the basics of quantum physics in a simple and understandable way.",
+    "Hilarious compilation of the funniest animal moments caught on camera this month.",
+    "A comprehensive review of the top 5 programming languages for web development in the current year.",
+    "Join me on my daily vlog as I explore hidden gems in my city and share my experiences.",
+    "The official music video for the latest hit single from a rising pop star. Catchy tunes and stunning visuals.",
+    "Discover the secrets of ancient civilizations in this fascinating documentary.",
+    "A step-by-step guide to building your own DIY bookshelf from scratch. Perfect for beginners!",
+    "Fitness expert shares a 20-minute high-intensity interval training (HIIT) workout for maximum results.",
+    "Travel guide to Tokyo: best food, attractions, and cultural experiences.",
+    "Learn to play the guitar with this beginner-friendly lesson covering basic chords and strumming patterns.",
+    "The future of artificial intelligence: A discussion with leading experts in the field."
+  ];
+
   return {
     id: `video-${i + 1}`,
     title: `Awesome Video Title That Might Be A Bit Long Sometimes ${i + 1}`,
-    thumbnailUrl: `https://placehold.co/600x338.png`, // Adjusted for a potentially larger display
-    likeCount: Math.floor(Math.random() * 10000) + 50, // Changed from starRating, higher values for likes
+    thumbnailUrl: `https://placehold.co/600x338.png`,
+    likeCount: Math.floor(Math.random() * 10000) + 50,
     viewCount: Math.floor(Math.random() * 1000000) + 100,
     uploadDate: new Date(Date.now() - Math.random() * 1000 * 60 * 60 * 24 * 365).toISOString(),
     tags: Array.from(videoTags),
-    channelName: `Channel ${String.fromCharCode(65 + (i % 15))}${Math.floor(i / 15) + 1}`, // More varied channel names
+    channelName: `Channel ${String.fromCharCode(65 + (i % 15))}${Math.floor(i / 15) + 1}`,
     channelAvatarUrl: `https://placehold.co/40x40.png`,
     duration: `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`,
+    description: descriptions[i % descriptions.length] + ` This is additional detail for video ${i+1} to make sure the description is long enough to test clamping and hover effects. We explore various aspects and provide in-depth analysis.`,
   };
 });
 
@@ -48,9 +67,8 @@ export async function GET(request: NextRequest) {
 
     if (searchQuery) {
       filteredVideos = filteredVideos.filter(video => 
-        video.title.toLowerCase().includes(searchQuery)
-        // Potential to add description search here if data included it
-        // || video.description.toLowerCase().includes(searchQuery) 
+        video.title.toLowerCase().includes(searchQuery) ||
+        video.description.toLowerCase().includes(searchQuery)
       );
     }
 
@@ -61,7 +79,7 @@ export async function GET(request: NextRequest) {
           comparison = new Date(a.uploadDate).getTime() - new Date(b.uploadDate).getTime();
         } else if (sortBy === 'viewCount') {
           comparison = a.viewCount - b.viewCount;
-        } else if (sortBy === 'likeCount') { // Changed from starRating
+        } else if (sortBy === 'likeCount') {
           comparison = a.likeCount - b.likeCount;
         }
         return sortOrder === 'asc' ? comparison : -comparison;
@@ -79,7 +97,7 @@ export async function GET(request: NextRequest) {
       totalPages,
       currentPage: page,
       totalVideos,
-      uniqueChannels: allUniqueChannels // Changed from uniqueTags
+      uniqueChannels: allUniqueChannels
     };
 
     await new Promise(resolve => setTimeout(resolve, 500));

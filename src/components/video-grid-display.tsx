@@ -12,22 +12,22 @@ import { Loader2, SearchX } from 'lucide-react';
 const VIDEOS_PER_PAGE = 12;
 
 const VideoCardSkeleton = () => (
-  <div className="w-96 bg-card rounded-lg shadow-lg overflow-hidden flex flex-col h-full"> {/* Adjusted width */}
+  <div className="w-80 bg-card rounded-lg shadow-lg overflow-hidden flex flex-col h-full">
     <Skeleton className="aspect-video w-full" />
-    <div className="p-3"> {/* Adjusted padding */}
+    <div className="p-3">
       <Skeleton className="h-5 w-3/4 mb-2" />
       <Skeleton className="h-4 w-1/2 mb-3" />
       <Skeleton className="h-4 w-full mb-1" />
       <Skeleton className="h-4 w-5/6 mb-1" />
     </div>
-    <div className="p-3 border-t mt-auto"> {/* Adjusted padding */}
-      <Skeleton className="h-6 w-full" /> {/* Placeholder for footer actions if any */}
+    <div className="p-3 border-t mt-auto">
+      <Skeleton className="h-6 w-full" />
     </div>
   </div>
 );
 
 
-export default function VideoGridDisplay({ initialUniqueChannels }: { initialUniqueChannels: string[] }) { // Prop renamed
+export default function VideoGridDisplay({ initialUniqueChannels }: { initialUniqueChannels: string[] }) {
   const [videos, setVideos] = useState<Video[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -44,8 +44,8 @@ export default function VideoGridDisplay({ initialUniqueChannels }: { initialUni
     setError(null);
 
     const query = new URLSearchParams();
-    if (params.channel) query.set('channel', params.channel); // Changed from topic
-    if (params.searchQuery) query.set('searchQuery', params.searchQuery); // Added searchQuery
+    if (params.channel) query.set('channel', params.channel);
+    if (params.searchQuery) query.set('searchQuery', params.searchQuery);
     if (params.sortBy) query.set('sortBy', params.sortBy);
     if (params.sortOrder) query.set('sortOrder', params.sortOrder);
     query.set('page', currentPage.toString());
@@ -76,8 +76,8 @@ export default function VideoGridDisplay({ initialUniqueChannels }: { initialUni
   useEffect(() => {
     setPage(1); 
     const params: FetchVideosParams = {
-      channel: searchParams.get('channel') || undefined, // Changed from topic
-      searchQuery: searchParams.get('searchQuery') || undefined, // Added searchQuery
+      channel: searchParams.get('channel') || undefined,
+      searchQuery: searchParams.get('searchQuery') || undefined,
       sortBy: (searchParams.get('sortBy') as FetchVideosParams['sortBy']) || undefined,
       sortOrder: (searchParams.get('sortOrder') as FetchVideosParams['sortOrder']) || undefined,
     };
@@ -112,8 +112,8 @@ export default function VideoGridDisplay({ initialUniqueChannels }: { initialUni
   useEffect(() => {
     if (page > 1 && page <= totalPages) {
       const params: FetchVideosParams = {
-        channel: searchParams.get('channel') || undefined, // Changed from topic
-        searchQuery: searchParams.get('searchQuery') || undefined, // Added searchQuery
+        channel: searchParams.get('channel') || undefined,
+        searchQuery: searchParams.get('searchQuery') || undefined,
         sortBy: (searchParams.get('sortBy') as FetchVideosParams['sortBy']) || undefined,
         sortOrder: (searchParams.get('sortOrder') as FetchVideosParams['sortOrder']) || undefined,
       };
@@ -124,7 +124,7 @@ export default function VideoGridDisplay({ initialUniqueChannels }: { initialUni
 
   if (isLoading && videos.length === 0) {
     return (
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(384px,1fr))] gap-4 p-4"> {/* Adjusted minmax */}
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-4">
         {Array.from({ length: VIDEOS_PER_PAGE }).map((_, index) => (
           <VideoCardSkeleton key={index} />
         ))}
@@ -154,7 +154,7 @@ export default function VideoGridDisplay({ initialUniqueChannels }: { initialUni
 
   return (
     <div className="flex-1">
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(384px,1fr))] gap-4 p-4"> {/* Adjusted minmax */}
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-4">
         {videos.map(video => (
           <VideoCard key={video.id} video={video} />
         ))}

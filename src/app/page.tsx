@@ -8,22 +8,31 @@ import ThemeToggleButton from '@/components/theme-toggle-button';
 
 async function getInitialUniqueChannels(): Promise<string[]> {
   // Log the environment variables being used to construct the base URL
+  // These are CRITICAL for deployed environments.
+  // Firebase App Hosting should ideally provide APP_URL.
   console.log(`getInitialUniqueChannels: process.env.APP_URL = ${process.env.APP_URL}`);
   console.log(`getInitialUniqueChannels: process.env.NEXT_PUBLIC_APP_URL = ${process.env.NEXT_PUBLIC_APP_URL}`);
 
+  // IMPORTANT: In a deployed environment (like Firebase App Hosting),
+  // process.env.APP_URL (or a similar variable provided by the hosting platform
+  // representing the public URL of the backend) MUST be set correctly.
+  // If it's not, the fetch will default to localhost and fail.
   const baseUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
-  const apiUrl = `${baseUrl}/api/videos?limit=1&page=1`;
+  const apiUrl = `${baseUrl}/api/videos?limit=1&page=1`; // Fetch minimal data just for channels
+  
   console.log(`Attempting to fetch initial channels from: ${apiUrl}`);
 
-  if (baseUrl.startsWith('http://localhost') && process.env.NODE_ENV === 'production') {
-    console.warn(`WARNING: Fetching from localhost (${baseUrl}) in a production-like environment. This is likely to fail. Ensure APP_URL or NEXT_PUBLIC_APP_URL is set correctly in your deployment environment.`);
+  if (baseUrl.startsWith('http://localhost') && (process.env.NODE_ENV === 'production' || process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' || process.env.NEXT_PUBLIC_APP_ENV === 'production' )) {
+    console.warn(`WARNING: Fetching from localhost (${baseUrl}) in a production-like environment. This is likely to fail. Ensure APP_URL (or equivalent) is set correctly in your deployment environment's service configuration.`);
   }
 
   try {
-    const response = await fetch(apiUrl, { cache: 'no-store' }); // Disable cache for this specific request
+    // Using 'no-store' to ensure this critical initial fetch isn't stale,
+    // especially during debugging deployment issues.
+    const response = await fetch(apiUrl, { cache: 'no-store' }); 
 
     if (!response.ok) {
-      const errorBody = await response.text();
+      const errorBody = await response.text(); // Ensure you await the text() promise
       console.error(`Failed to fetch initial channels. Status: ${response.status}, URL: ${apiUrl}, Body: ${errorBody}. Using ERROR fallback channels (A).`);
       return ["Error: Fallback A", "Check Server Logs", "Details: Fetch Fail"];
     }
@@ -39,6 +48,7 @@ async function getInitialUniqueChannels(): Promise<string[]> {
     }
   } catch (error) {
     console.error(`Caught error in getInitialUniqueChannels fetching from ${apiUrl}:`, error);
+    // This fallback "C" is what you're seeing, indicating the fetch itself threw an exception.
     return ["Error: Fallback C", "Check Server Logs", "Details: Exception"];
   }
 }

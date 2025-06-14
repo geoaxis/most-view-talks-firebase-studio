@@ -11,6 +11,9 @@ async function getInitialUniqueChannels(): Promise<string[]> {
   const baseUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
   const apiUrl = `${baseUrl}/api/videos?limit=1&page=1`;
   console.log(`Attempting to fetch initial channels from: ${apiUrl}`);
+  if (baseUrl.startsWith('http://localhost') && process.env.NODE_ENV === 'production') {
+    console.warn(`WARNING: Fetching from localhost (${baseUrl}) in a production-like environment. This is likely to fail. Ensure APP_URL or NEXT_PUBLIC_APP_URL is set correctly in your deployment environment.`);
+  }
 
   try {
     const response = await fetch(apiUrl, { cache: 'no-store' }); // Disable cache for this specific request
@@ -23,12 +26,12 @@ async function getInitialUniqueChannels(): Promise<string[]> {
 
     const data: PaginatedVideos = await response.json();
 
-    if (data && data.uniqueChannels && data.uniqueChannels.length > 0) {
+    if (data && data.uniqueChannels && Array.isArray(data.uniqueChannels) && data.uniqueChannels.length > 0) {
       console.log("Successfully fetched unique channels:", data.uniqueChannels);
       return data.uniqueChannels;
     } else {
-      console.warn(`API returned success but uniqueChannels is empty or undefined. API URL: ${apiUrl}, Response data: ${JSON.stringify(data)}. Using ERROR fallback channels (B).`);
-      return ["Error: Fallback B", "Check Server Logs", "Details: No Channels"];
+      console.warn(`API returned success but uniqueChannels is empty, undefined, or not a non-empty array. API URL: ${apiUrl}, Response data: ${JSON.stringify(data)}. Using ERROR fallback channels (B).`);
+      return ["Error: Fallback B", "Check Server Logs", "Details: No/Invalid Channels"];
     }
   } catch (error) {
     console.error(`Caught error in getInitialUniqueChannels fetching from ${apiUrl}:`, error);

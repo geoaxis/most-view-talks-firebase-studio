@@ -42,7 +42,7 @@ async function fetchAllVideosFromYouTube(): Promise<Video[]> {
 
   const playlistIds = playlistIdEnv.split(',').map(id => id.trim()).filter(id => id);
   if (playlistIds.length === 0) {
-    console.warn("No valid playlist IDs found in PLAYLIST_IDS environment variable. Returning empty video list.");
+    console.warn("No valid playlist IDs found in PLAYLIST_IDS environment variable after parsing. Returning empty video list.");
     allVideosCache = [];
     cacheTimestamp = Date.now();
     return [];
@@ -181,4 +181,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message, error: String(error) }, { status: 500 });
   }
 }
-

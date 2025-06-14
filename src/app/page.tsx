@@ -17,8 +17,8 @@ async function getInitialUniqueChannels(): Promise<string[]> {
 
     if (!response.ok) {
       const errorBody = await response.text();
-      console.error(`Failed to fetch initial channels. Status: ${response.status}, URL: ${apiUrl}, Body: ${errorBody}. Using fallback channels (A).`);
-      return ["Channel Fallback A", "Channel Fallback B", "Channel Fallback C"];
+      console.error(`Failed to fetch initial channels. Status: ${response.status}, URL: ${apiUrl}, Body: ${errorBody}. Using ERROR fallback channels (A).`);
+      return ["Error: Fallback A", "Check Server Logs", "Details: Fetch Fail"];
     }
 
     const data: PaginatedVideos = await response.json();
@@ -27,12 +27,12 @@ async function getInitialUniqueChannels(): Promise<string[]> {
       console.log("Successfully fetched unique channels:", data.uniqueChannels);
       return data.uniqueChannels;
     } else {
-      console.warn(`API returned success but uniqueChannels is empty or undefined. API URL: ${apiUrl}, Response data: ${JSON.stringify(data)}. Using fallback channels (B).`);
-      return ["Channel Fallback D", "Channel Fallback E", "Channel Fallback F"];
+      console.warn(`API returned success but uniqueChannels is empty or undefined. API URL: ${apiUrl}, Response data: ${JSON.stringify(data)}. Using ERROR fallback channels (B).`);
+      return ["Error: Fallback B", "Check Server Logs", "Details: No Channels"];
     }
   } catch (error) {
     console.error(`Caught error in getInitialUniqueChannels fetching from ${apiUrl}:`, error);
-    return ["Channel Fallback G", "Channel Fallback H", "Channel Fallback I"];
+    return ["Error: Fallback C", "Check Server Logs", "Details: Exception"];
   }
 }
 

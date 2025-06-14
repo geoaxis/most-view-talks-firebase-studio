@@ -7,10 +7,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import ThemeToggleButton from '@/components/theme-toggle-button';
 
 async function getInitialUniqueChannels(): Promise<string[]> {
-  // Determine base URL - prioritize Firebase's APP_URL, then NEXT_PUBLIC_APP_URL, then local
+  // Log the environment variables being used to construct the base URL
+  console.log(`getInitialUniqueChannels: process.env.APP_URL = ${process.env.APP_URL}`);
+  console.log(`getInitialUniqueChannels: process.env.NEXT_PUBLIC_APP_URL = ${process.env.NEXT_PUBLIC_APP_URL}`);
+
   const baseUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:9002';
   const apiUrl = `${baseUrl}/api/videos?limit=1&page=1`;
   console.log(`Attempting to fetch initial channels from: ${apiUrl}`);
+
   if (baseUrl.startsWith('http://localhost') && process.env.NODE_ENV === 'production') {
     console.warn(`WARNING: Fetching from localhost (${baseUrl}) in a production-like environment. This is likely to fail. Ensure APP_URL or NEXT_PUBLIC_APP_URL is set correctly in your deployment environment.`);
   }

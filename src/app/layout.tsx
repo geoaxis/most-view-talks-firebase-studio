@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider"; // Added ThemeProvider
 
 export const metadata: Metadata = {
-  title: 'TubeInsights',
-  description: 'Insights from YouTube video data',
+  title: 'Most Popular Tech Videos',
+  description: 'A curated list of the most popular and insightful tech videos from YouTube.',
 };
 
 export default function RootLayout({

@@ -87,8 +87,8 @@ export default async function Home() {
       <header className="p-4 sm:p-6 bg-primary text-primary-foreground shadow-md">
         <div className="container mx-auto max-w-screen-2xl flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold font-headline">TubeInsights Dashboard</h1>
-            <p className="text-sm opacity-90">Explore video trends and statistics.</p>
+            <h1 className="text-3xl font-bold font-headline">Most Popular tech videos</h1>
+            <p className="text-sm opacity-90">Curated list of top tech videos from YouTube.</p>
           </div>
           <ThemeToggleButton />
         </div>
